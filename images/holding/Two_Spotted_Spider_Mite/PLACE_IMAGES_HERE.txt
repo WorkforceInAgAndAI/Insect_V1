@@ -1,3 +1,0 @@
-adult_1.jpg    <-- adult or general photo
-larval_1.jpg   <-- larval or nymph photo
-damage_1.jpg   <-- crop damage photo
