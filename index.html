@@ -99,7 +99,7 @@ html.dark .toggle-thumb{transform:translateX(14px);}
 .grade-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
 .grade-pill{font-size:.58rem;padding:2px 7px;border-radius:20px;border:1px solid var(--card-color);color:var(--card-color);font-family:'Space Mono',monospace;}
 .join-section{background:var(--surface);border:1px solid var(--border);padding:20px 28px;border-radius:4px;max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:var(--shadow);}
-.join-label{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+.join-label{font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:#1a2810;}
 .join-row{display:flex;gap:8px;width:100%;}
 .join-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Space Mono',monospace;font-size:.9rem;letter-spacing:3px;text-transform:uppercase;border-radius:2px;text-align:center;}
 .join-input:focus{outline:none;border-color:var(--amber);}
@@ -107,7 +107,7 @@ html.dark .toggle-thumb{transform:translateX(14px);}
 .name-input:focus{outline:none;border-color:var(--amber);}
 .join-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:10px 14px;font-family:'Space Mono',monospace;font-size:.7rem;cursor:pointer;border-radius:2px;transition:all .2s;}
 .join-btn:hover{border-color:var(--amber);color:var(--amber);}
-.join-status{font-size:.7rem;color:var(--text3);font-style:italic;}
+.join-status{font-size:.85rem;color:#1a2810;font-style:italic;font-weight:600;}
 .start-btn{background:var(--amber);color:#fff;border:none;padding:16px 52px;font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);}
 html.dark .start-btn{color:#0e1a14;}
 .start-btn:hover{background:var(--amber2);transform:scale(1.04);box-shadow:0 0 40px rgba(232,160,32,.4);}
@@ -492,6 +492,8 @@ html.dark .data-table tr:nth-child(even) td{background:rgba(30,45,26,.25);}
   </div>
   <div class="join-section">
     <div class="join-label">Your Name (optional)</div>
+    <div class="join-label">Class Code (optional)</div>
+<div class="join-status" id="joinStatus">Ask your instructor for a class code</div>
     <input class="name-input" id="nameInp" type="text" placeholder="Enter your name…"/>
     <div class="join-label" style="margin-top:6px">Class Code (optional)</div>
     <div class="join-row">
