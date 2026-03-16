@@ -1475,49 +1475,52 @@ function renderOrderClassify(body){
   };
 }
 
-function renderPoisonSafe(body){
-  const insects=[...INSECTS].sort(()=>Math.random()-.5).slice(0,5);
-  body.innerHTML=`<div class="act-instr">☠️ Sort insects by <strong>potential harm to humans</strong>.</div>
-    <div style="width:100%;max-width:820px;display:flex;flex-direction:column;gap:14px">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-        ${[{id:'none',icon:'🟢',label:'Harmless',color:'var(--green)'},{id:'mild',icon:'🟡',label:'Mild Concern',color:'var(--amber)'},{id:'harmful',icon:'🔴',label:'Significant Hazard',color:'var(--red)'}].map(b=>
-          `<div style="min-height:130px;border:2px dashed;border-color:${b.color};border-radius:4px;padding:12px" id="tb-${b.id}" ondragover="event.preventDefault()" ondrop="toxDrop(event,'${b.id}')">
-            <div style="font-size:1.6rem;text-align:center">${b.icon}</div>
-            <div style="font-size:.78rem;font-weight:800;color:var(--white);text-align:center">${b.label}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:center" id="ti-${b.id}"></div></div>`).join('')}
-      </div>
-      <div class="pool pool-classify" id="toxPool">
-        ${insects.map(ins=>{const src=ins.imgFolder?`${IMG_BASE}/${ins.imgFolder}/adult_1.jpg`:'';return`<div class="classify-chip" id="tc-${ins.id}" draggable="true" data-id="${ins.id}" data-tox="${ins.toxic}" style="flex-direction:column;align-items:center;padding:8px;min-width:90px">${src?`<img src="${src}" alt="${ins.common}" style="width:70px;height:54px;object-fit:cover;border-radius:4px;pointer-events:none" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" onload="this.nextElementSibling.style.display='none'"><div style="display:none;font-size:1.8rem;text-align:center">${ins.icon}</div>`:`<div style="font-size:1.8rem;text-align:center">${ins.icon}</div>`}<span style="font-size:.65rem;text-align:center;line-height:1.2;margin-top:3px">${ins.common}</span></div>`;}).join('')}{ins.icon} ${ins.common}</div>`).join('')}
-      </div>
-    </div>
-    <div class="feedback" id="toxFb"></div>`;
-  insects.forEach(ins=>{
-    const el=document.getElementById('tc-'+ins.id);
-    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('txid',ins.id);el.classList.add('dragging');});
-    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
-  });
-  window._toxIns=insects;window._toxPlaced=0;window._toxOK=0;
-  window.toxDrop=function(e,level){
-    e.preventDefault();
-    const id=parseInt(e.dataTransfer.getData('txid'));
-    const ins=window._toxIns.find(i=>i.id===id);if(!ins)return;
-    const chip=document.getElementById('tc-'+id);if(!chip||chip.dataset.placed==='1')return;
-    chip.dataset.placed='1';chip.setAttribute('draggable','false');chip.style.opacity='.3';
-    const ok=ins.toxic===level;
-    const clone=chip.cloneNode(true);clone.classList.add(ok?'correct':'wrong');
-    document.getElementById('ti-'+level).appendChild(clone);
-    window._toxPlaced++;if(ok)window._toxOK++;
-    if(window._toxPlaced===window._toxIns.length){
-      const allOk=window._toxOK===window._toxIns.length;
-      const fb=document.getElementById('toxFb');fb.className='feedback show';
-      fb.innerHTML=`<div class="fb-head ${allOk?'correct':'wrong'}"><div class="fb-status">${window._toxOK}/${window._toxIns.length} Correct!</div><div class="fb-xp">${allOk?'+18 XP':''}</div></div>
-        <div class="fb-body">${window._toxIns.map(i=>`<div class="fb-text">${i.icon} <strong>${i.common}</strong>: toxicity level = ${i.toxic}</div>`).join('')}
-        <button class="next-btn" onclick="nextRound()">NEXT ROUND →</button></div>`;
-      if(allOk)onCorrect('poison-safe',window._toxIns.map(i=>i.id),18); else onWrong('poison-safe',window._toxIns.map(i=>i.id));
-    }
+function renderLookalike(body){
+  const ins=INSECTS[Math.floor(Math.random()*INSECTS.length)];
+  const lookIds=ins.lookAlikeIds||[];
+  const lookalikes=lookIds.map(id=>INSECTS.find(i=>i.id===id)).filter(Boolean);
+  const others=[...INSECTS].filter(i=>i.id!==ins.id&&!lookIds.includes(i.id)).sort(()=>Math.random()-.5).slice(0,2-Math.min(2,lookalikes.length));
+  const decoys=[...lookalikes.slice(0,2),...others];
+  const choices=[ins,...decoys].sort(()=>Math.random()-.5);
+  let choicesHTML=choices.map(function(ch){
+    return '<div class="lookalike-opt" data-chid="'+ch.id+'" onclick="lookalikeAnswer('+ch.id+','+ins.id+')" style="background:var(--surface);border:2px solid var(--border);border-radius:4px;padding:18px 20px;cursor:pointer;text-align:center;transition:all .2s;flex:1;min-width:140px;max-width:200px;box-shadow:var(--shadow)">'
+      +insectImg(ch,'adult','90px')
+      +'<div class="la-tell" style="display:none;font-size:.7rem;color:var(--text2);margin-top:6px;line-height:1.4"></div>'
+      +'</div>';
+  }).join('');
+  body.innerHTML='<div class="act-instr" style="--grade-color:var(--middle)">🔍 <strong>Select</strong> the species named below. Look for subtle differences!</div>'
+    +'<div style="width:100%;max-width:760px;display:flex;flex-direction:column;gap:18px;align-items:center">'
+    +'<div style="font-size:.8rem;color:var(--text2);text-align:center">Identify this species:</div>'
+    +'<div style="font-family:\'Playfair Display\',serif;font-size:1.7rem;color:var(--amber);font-style:italic;text-align:center">'+ins.common+'</div>'
+    +'<div style="font-size:.75rem;color:var(--text3);font-family:\'Space Mono\',monospace;text-align:center">'+ins.order+' · '+ins.family+'</div>'
+    +'<div style="font-size:.88rem;color:var(--text2);text-align:center;max-width:500px;line-height:1.5"><em>"'+ins.diagnosticKey+'"</em></div>'
+    +'<div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;width:100%">'+choicesHTML+'</div>'
+    +'</div>'
+    +'<div class="feedback" style="display:none" id="laFb"></div>';
+  window._laIns=ins;window._laChoices=choices;
+  window.lookalikeAnswer=function(selectedId,correctId){
+    if(G.answered)return; G.answered=true;
+    const ok=selectedId===correctId;
+    document.querySelectorAll('.lookalike-opt').forEach(function(el){
+      el.style.pointerEvents='none';
+      const ch=choices.find(c=>c.id===parseInt(el.dataset.chid));
+      if(!ch)return;
+      if(ch.id===correctId){el.style.borderColor='var(--green)';el.style.background='var(--green-dim)';}
+      else if(ch.id===selectedId&&!ok){el.style.borderColor='var(--red)';el.style.background='var(--red-dim)';}
+      const tell=el.querySelector('.la-tell');
+      if(tell){tell.textContent=ch.id===correctId?'✓ KEY: '+ch.diagnosticKey:'⚠ This species: '+ch.diagnosticKey;tell.style.display='block';}
+    });
+    const fb=document.getElementById('laFb');
+    fb.style.display='block';
+    fb.innerHTML='<div class="fb-head '+(ok?'correct':'wrong')+'">'
+      +'<div class="fb-status">'+(ok?'Correct! '+ins.common+' ✓':'Not quite — check the diagnostic key')+'</div>'
+      +'<div class="fb-xp">'+(ok?'+15 XP':'')+'</div></div>'
+      +'<div class="fb-body"><div class="fb-text"><strong>Diagnostic key:</strong> '+ins.diagnosticKey+'</div>'
+      +'<div class="fb-mem"><strong>Memory Rule</strong>'+ins.memoryRule+'</div>'
+      +'<button class="next-btn" onclick="nextRound()">NEXT ROUND →</button></div>';
+    if(ok)onCorrect('lookalike-select',[ins.id],15); else onWrong('lookalike-select',[ins.id]);
   };
 }
-
 function renderBodyPart(body){
   const PARTS=[
     {id:'head',label:'Head',clue:'The front section containing the brain, compound eyes, antennae, and mouthparts.',color:'#e8a020'},
@@ -2194,7 +2197,7 @@ function filterGlossary(){
   if(countEl) countEl.textContent = 'Showing ' + filtered.length + ' of ' + INSECTS.length + ' species';
   var grid = document.getElementById('glossGrid');
   if(!grid) return;
-  grid.innerHTML = filtered.map(function(ins){
+grid.innerHTML = filtered.map(function(ins){
 return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px">'
       + (ins.imgFolder ? '<img src="images/' + ins.imgFolder + '/adult_1.jpg" alt="' + ins.common + '" style="width:100%;height:140px;object-fit:cover;border-radius:4px;margin-bottom:8px" onerror="this.style.display=\'none\'">' : '<div style="font-size:2rem;text-align:center">' + ins.icon + '</div>')
       + '<div style="font-weight:800;font-size:.95rem;color:var(--white)">' + ins.common + '</div>'
