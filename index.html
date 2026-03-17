@@ -230,8 +230,8 @@ html.dark .next-btn{color:#0e1a14;}
 .match-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s ease;}
 .match-card.flipped .match-inner,.match-card.matched .match-inner{transform:rotateY(180deg);}
 .match-face,.match-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;text-align:center;}
-.match-face{background:var(--surface2);font-size:.58rem;color:var(--text3);font-family:'Space Mono',monospace;gap:6px;}
-.match-back{background:var(--surface);transform:rotateY(180deg);}
+.match-face{background:var(--surface2);font-size:.58rem;color:var(--text3);font-family:'Space Mono',monospace;gap:6px;text-align:center;}
+.match-back{background:var(--surface);transform:rotateY(180deg);text-align:center;}
 .match-card.matched .match-back{background:var(--green-dim);}
 .match-back-name{font-size:.82rem;font-weight:800;color:var(--white);}
 .match-back-sci{font-size:.62rem;font-style:italic;color:var(--text3);margin-top:3px;}
@@ -330,8 +330,8 @@ html.dark .order-bin.drag-over{background:rgba(59,189,181,.08);}
 .mem-inner{width:100%;height:100%;transform-style:preserve-3d;transition:transform .4s ease;border-radius:4px;}
 .mem-card.mem-open .mem-inner,.mem-card.mem-matched .mem-inner{transform:rotateY(180deg);}
 .mem-f,.mem-b{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;text-align:center;}
-.mem-f{background:var(--surface2);}
-.mem-b{background:var(--surface);transform:rotateY(180deg);}
+.mem-f{background:var(--surface2);text-align:center;}
+.mem-b{background:var(--surface);transform:rotateY(180deg);text-align:center;}
 .mem-card.mem-matched .mem-b{background:var(--green-dim);}
 .mem-bn{font-size:.72rem;font-weight:800;color:var(--white);}
 .mem-bs{font-size:.58rem;font-style:italic;color:var(--amber);margin-top:3px;}
@@ -468,7 +468,7 @@ html.dark .data-table tr:nth-child(even) td{background:rgba(30,45,26,.25);}
 <div class="screen active" id="screen-landing">
   <div class="app-logo">🐛</div>
   <h1 class="app-title">Bug<span>ID</span></h1>
-  <p class="app-tagline">Midwest Insect Identification · 4 Species · K–12</p>
+  <p class="app-tagline">Midwest Insect Identification · 30 Species · K–12</p>
   <p style="color:var(--text2);font-size:.88rem;max-width:480px;line-height:1.6;text-align:center">Choose your grade level for custom activities — drag & drop, field simulations, threshold calculators, and more.</p>
   <div class="grade-grid">
     <div class="grade-card" data-grade="elementary" onclick="selectGrade('elementary')">
@@ -1294,10 +1294,10 @@ function renderNameMatch(body){
     cards.push({pair:ins.id,type:'name',ins:ins});
   });
   cards.sort(function(){return Math.random()-.5;});
-  body.innerHTML='<div class="act-instr">🃏 Flip cards to match each <strong>photo</strong> to its <strong>name</strong>. Find all '+insects.length+' pairs!</div>'
-    +'<div class="match-grid" id="matchGrid"></div>'
-    +'<div style="font-family:\'Space Mono\',monospace;font-size:.72rem;color:var(--text3);margin-top:4px" id="matchStatus">0/'+insects.length+' pairs found</div>'
-    +'<div class="feedback" id="matchFb"></div>';
+ body.innerHTML=`<div class="act-instr">🃏 Flip cards to match each <strong>photo</strong> to its <strong>name</strong>. Find all ${insects.length} pairs!</div>
+    <div class="match-grid" id="matchGrid" style="margin:0 auto"></div>
+    <div style="font-family:'Space Mono',monospace;font-size:.72rem;color:var(--text3);margin-top:4px;text-align:center;width:100%" id="matchStatus">0/${insects.length} pairs found</div>
+    <div class="feedback" id="matchFb"></div>`;
   var grid=document.getElementById('matchGrid');
   cards.forEach(function(card){
     var el=document.createElement('div'); el.className='match-card';
@@ -1404,9 +1404,8 @@ function renderImageId(body){
         <div class="swipe-origin">${correct.order} · ${correct.family}</div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%">
-        ${choices.map(ch=>`<div style="background:var(--surface);border:2px solid var(--border);border-radius:4px;padding:16px 14px;cursor:pointer;text-align:center;transition:all .2s;box-shadow:var(--shadow)" id="iid-${ch.id}" onclick="iidAnswer(${ch.id},${correct.id})" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
-          ${insectImg(ch,'adult','80px')}
-          <div style="font-size:.82rem;font-weight:700;color:var(--white);margin-top:6px">${ch.common}</div>
+        ${choices.map(ch=>`<div style="background:var(--surface);border:2px solid var(--border);border-radius:4px;padding:24px 14px;cursor:pointer;text-align:center;transition:all .2s;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center" id="iid-${ch.id}" onclick="iidAnswer(${ch.id},${correct.id})" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
+          <div style="font-size:.95rem;font-weight:800;color:var(--white);line-height:1.4">${ch.common}</div>
         </div>`).join('')}
       </div>
     </div>
@@ -1754,10 +1753,10 @@ function renderSciNameMemory(body){
   var cards=[];
   insects.forEach(function(ins){cards.push({pairId:ins.id,type:'common',ins:ins});cards.push({pairId:ins.id,type:'sci',ins:ins});});
   cards.sort(function(){return Math.random()-.5;});
-  body.innerHTML='<div class="act-instr" style="--grade-color:var(--high)">🧬 Match each insect <strong>photo + common name</strong> to its <strong>scientific name</strong>.</div>'
-    +'<div style="width:100%;max-width:700px;display:flex;flex-direction:column;gap:14px;align-items:center">'
-    +'<div style="display:flex;gap:20px;font-size:.75rem;font-family:\'Space Mono\',monospace;color:var(--text3)"><span>Pairs: <span id="sciPairs">0</span>/'+insects.length+'</span><span>Moves: <span id="sciMoves">0</span></span></div>'
-    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%" id="sciGrid"></div>'
+body.innerHTML='<div class="act-instr" style="--grade-color:var(--high)">🧬 Match each insect <strong>photo + common name</strong> to its <strong>scientific name</strong>.</div>'
+    +'<div style="width:100%;max-width:700px;display:flex;flex-direction:column;gap:14px;align-items:center;margin:0 auto">'
+    +'<div style="display:flex;gap:20px;font-size:.75rem;font-family:\'Space Mono\',monospace;color:var(--text3);text-align:center;width:100%;justify-content:center"><span>Pairs: <span id="sciPairs">0</span>/'+insects.length+'</span><span>Moves: <span id="sciMoves">0</span></span></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin:0 auto" id="sciGrid"></div>'
     +'</div><div class="feedback" style="display:none" id="sciFb"></div>';
   var grid=document.getElementById('sciGrid');
   cards.forEach(function(card){
@@ -1770,7 +1769,7 @@ function renderSciNameMemory(body){
       ?(src?'<img src="'+src+'" alt="'+card.ins.common+'" style="width:100%;height:54px;object-fit:cover;border-radius:3px 3px 0 0" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'" onload="this.nextElementSibling.style.display=\'none\'"><div style="display:none;font-size:1.8rem;text-align:center;padding:4px">'+card.ins.icon+'</div>':'<div style="font-size:1.8rem;text-align:center;padding:6px">'+card.ins.icon+'</div>')
         +'<div style="padding:4px 6px;text-align:center"><div style="font-size:.68rem;font-weight:800;color:var(--white);line-height:1.2">'+card.ins.common+'</div><div style="font-size:.52rem;color:var(--text3);margin-top:2px">'+card.ins.order+'</div></div>'
       :'<div style="padding:6px 5px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center"><div style="font-size:.62rem;font-style:italic;color:var(--teal);font-weight:700;line-height:1.3">'+card.ins.scientific+'</div><div style="font-size:.52rem;color:var(--text3);margin-top:5px">'+card.ins.family+'</div></div>';
-    var back='<div style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);border-radius:4px;background:var(--surface);display:flex;flex-direction:column;overflow:hidden;">'+backC+'</div>';
+   var back='<div style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);border-radius:4px;background:var(--surface);display:flex;flex-direction:column;overflow:hidden;align-items:center;justify-content:center;text-align:center;">'+backC+'</div>';
     el.innerHTML='<div style="width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease;border-radius:4px;">'+front+back+'</div>';
     el.addEventListener('click',function(){
       if(locked||el.dataset.flipped==='1'||el.dataset.matched==='1')return;
