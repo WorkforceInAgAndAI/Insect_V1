@@ -1521,6 +1521,57 @@ function renderLookalike(body){
     if(ok)onCorrect('lookalike-select',[ins.id],15); else onWrong('lookalike-select',[ins.id]);
   };
 }
+function renderPoisonSafe(body){
+  const insects=[...INSECTS].sort(()=>Math.random()-.5).slice(0,5);
+  let binsHTML=[
+    {id:'none',icon:'🟢',label:'Harmless',color:'var(--green)'},
+    {id:'mild',icon:'🟡',label:'Mild Concern',color:'var(--amber)'},
+    {id:'harmful',icon:'🔴',label:'Significant Hazard',color:'var(--red)'}
+  ].map(function(b){
+    return '<div style="min-height:130px;border:2px dashed;border-color:'+b.color+';border-radius:4px;padding:12px" id="tb-'+b.id+'" ondragover="event.preventDefault()" ondrop="toxDrop(event,\''+b.id+'\')">'
+      +'<div style="font-size:1.6rem;text-align:center">'+b.icon+'</div>'
+      +'<div style="font-size:.78rem;font-weight:800;color:var(--white);text-align:center">'+b.label+'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;justify-content:center" id="ti-'+b.id+'"></div></div>';
+  }).join('');
+  let chipsHTML=insects.map(function(ins){
+    var src=ins.imgFolder?IMG_BASE+'/'+ins.imgFolder+'/adult_1.jpg':'';
+    var imgPart=src
+      ?'<img src="'+src+'" alt="'+ins.common+'" style="width:70px;height:54px;object-fit:cover;border-radius:4px;pointer-events:none" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'" onload="this.nextElementSibling.style.display=\'none\'"><div style="display:none;font-size:1.8rem;text-align:center">'+ins.icon+'</div>'
+      :'<div style="font-size:1.8rem;text-align:center">'+ins.icon+'</div>';
+    return '<div class="classify-chip" id="tc-'+ins.id+'" draggable="true" data-id="'+ins.id+'" data-tox="'+ins.toxic+'" style="flex-direction:column;align-items:center;padding:8px;min-width:90px">'+imgPart+'<span style="font-size:.65rem;text-align:center;line-height:1.2;margin-top:3px">'+ins.common+'</span></div>';
+  }).join('');
+  body.innerHTML='<div class="act-instr">☠️ Sort insects by <strong>potential harm to humans</strong>.</div>'
+    +'<div style="width:100%;max-width:820px;display:flex;flex-direction:column;gap:14px">'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">'+binsHTML+'</div>'
+    +'<div class="pool pool-classify" id="toxPool">'+chipsHTML+'</div>'
+    +'</div>'
+    +'<div class="feedback" id="toxFb"></div>';
+  insects.forEach(ins=>{
+    const el=document.getElementById('tc-'+ins.id);
+    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('txid',ins.id);el.classList.add('dragging');});
+    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+  });
+  window._toxIns=insects;window._toxPlaced=0;window._toxOK=0;
+  window.toxDrop=function(e,level){
+    e.preventDefault();
+    const id=parseInt(e.dataTransfer.getData('txid'));
+    const ins=window._toxIns.find(i=>i.id===id);if(!ins)return;
+    const chip=document.getElementById('tc-'+id);if(!chip||chip.dataset.placed==='1')return;
+    chip.dataset.placed='1';chip.setAttribute('draggable','false');chip.style.opacity='.3';
+    const ok=ins.toxic===level;
+    const clone=chip.cloneNode(true);clone.classList.add(ok?'correct':'wrong');
+    document.getElementById('ti-'+level).appendChild(clone);
+    window._toxPlaced++;if(ok)window._toxOK++;
+    if(window._toxPlaced===window._toxIns.length){
+      const allOk=window._toxOK===window._toxIns.length;
+      const fb=document.getElementById('toxFb');fb.className='feedback show';
+      fb.innerHTML='<div class="fb-head '+(allOk?'correct':'wrong')+'"><div class="fb-status">'+window._toxOK+'/'+window._toxIns.length+' Correct!</div><div class="fb-xp">'+(allOk?'+18 XP':'')+'</div></div>'
+        +'<div class="fb-body">'+window._toxIns.map(i=>'<div class="fb-text">'+i.icon+' <strong>'+i.common+'</strong>: toxicity level = '+i.toxic+'</div>').join('')
+        +'<button class="next-btn" onclick="nextRound()">NEXT ROUND →</button></div>';
+      if(allOk)onCorrect('poison-safe',window._toxIns.map(i=>i.id),18); else onWrong('poison-safe',window._toxIns.map(i=>i.id));
+    }
+  };
+}
 function renderBodyPart(body){
   const PARTS=[
     {id:'head',label:'Head',clue:'The front section containing the brain, compound eyes, antennae, and mouthparts.',color:'#e8a020'},
